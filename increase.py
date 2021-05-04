@@ -2,53 +2,39 @@ import numpy as np
 
 import os
 
+from libarchive.ffi import errno
+
 np.random.seed(3)
 
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
+optInputPath = 'C:/Users/JEONKYUBIN/Desktop/YOLO_ToothBrush/Images/Normal_toothbrush'
 
-optInputPath = '/home/jeongni/First_floor/'
+optOutputPath = 'C:/Users/JEONKYUBIN/Desktop/YOLO_ToothBrush/Images/Normal_ToothBrush_Increse'
 
+optRescale = 1. / 255
 
-optOutputPath = '/home/jeongni/image_increase/'
+optRotationRange = 10
 
+optWidthShiftRange = 0.2
 
+optHeightShiftRange = 0.2
 
-optRescale = 1./255
+optShearRange = 0.5
 
+optZoomRange = [0.9, 2.2]
 
-optRotationRange=10
-
-
-optWidthShiftRange=0.2
-
-
-optHeightShiftRange=0.2
-
-
-optShearRange=0.5
-
-
-optZoomRange=[0.9,2.2]
-
-
-optHorizontalFlip = True 
-
+optHorizontalFlip = True
 
 optVerticalFlip = True
 
-optFillMode='nearest'
-
+optFillMode = 'nearest'
 
 optNbrOfIncreasePerPic = 5
 
-
 optNbrOfBatchPerPic = 5
 
-
-
-
-train_datagen = ImageDataGenerator(rescale=optRescale, 
+train_datagen = ImageDataGenerator(rescale=optRescale,
 
                                    rotation_range=optRotationRange,
 
@@ -68,24 +54,19 @@ train_datagen = ImageDataGenerator(rescale=optRescale,
 
 
 def checkFoler(path):
-
     try:
 
-        if not(os.path.isdir(path)):
-
+        if not (os.path.isdir(path)):
             os.makedirs(os.path.join(path))
 
     except OSError as e:
 
-        if e.errno != errno.EEXIST:                        
-
-            raise            
-
+        if e.errno != errno.EEXIST:
+            raise
 
 
-def increaseImage(path ,folder):
-
-    for index in range(0,optNbrOfIncreasePerPic):                                   
+def increaseImage(path, folder):
+    for index in range(0, optNbrOfIncreasePerPic):
 
         img = load_img(path)
 
@@ -95,25 +76,22 @@ def increaseImage(path ,folder):
 
         i = 0
 
-
-        checkFoler(optOutputPath+folder)               
+        checkFoler(optOutputPath + folder)
 
         print('index : ' + str(index))
 
-        for batch in train_datagen.flow(x, batch_size=1, save_to_dir=optOutputPath+folder, save_prefix='tri', save_format='jpg'):
+        for batch in train_datagen.flow(x, batch_size=1, save_to_dir=optOutputPath + folder, save_prefix='tri',
+                                        save_format='jpg'):
 
             i += 1
 
             print(folder + " " + str(i))
 
-            if i >= optNbrOfBatchPerPic: 
-
+            if i >= optNbrOfBatchPerPic:
                 break
 
 
-
 def generator(dirName):
-
     checkFoler(optOutputPath)
 
     try:
@@ -124,30 +102,25 @@ def generator(dirName):
 
             fullFileName = os.path.join(dirName, fileName)
 
-            if os.path.isdir(fullFileName):                
+            if os.path.isdir(fullFileName):
 
                 generator(fullFileName)
 
             else:
 
-
                 ext = os.path.splitext(fullFileName)[-1]
-
 
                 folderName = os.path.splitext(fullFileName)[0].split('/')[-2]
 
-                if(ext == '.jpg'):                    
+                if (ext == '.jpg'):
+                    increaseImage(fullFileName, folderName)
 
-                    increaseImage(fullFileName, folderName)               
 
-                    
 
     except PermissionError:
 
         pass
 
 
-
 if __name__ == "__main__":
-
-        generator(optInputPath)  
+    generator(optInputPath)
